@@ -18,6 +18,20 @@ namespace GameCaro
         private PictureBox pictureBoxMark;
         private List<List<Button>> matrix;
 
+        private event EventHandler playerMarked;
+        public event EventHandler PlayerMarked
+        {
+            add { playerMarked += value; }
+            remove { playerMarked -= value; }
+        }
+
+        private event EventHandler endedGame;
+        public event EventHandler EndedGame
+        {
+            add { endedGame += value; }
+            remove { endedGame -= value; }
+        }
+
         public Panel PanelChessBoard { get => panelChessBoard; set => panelChessBoard = value; }
         public List<Player> Players { get => players; set => players = value; }
         public int CurrentPlayer { get => currentPlayer; set => currentPlayer = value; }
@@ -41,8 +55,7 @@ namespace GameCaro
                 new Player("Player1", Image.FromFile(Application.StartupPath + "\\img\\X.png")),
                 new Player("Player2", Image.FromFile(Application.StartupPath + "\\img\\O.png")),
             };
-            CurrentPlayer = 0;          
-            ChangePlayer();
+            
         }
         
 
@@ -50,7 +63,12 @@ namespace GameCaro
 
         public void DrawChessBoard()
         {
+            panelChessBoard.Enabled = true;
+            panelChessBoard.Controls.Clear();
             Matrix = new List<List<Button>>();
+            CurrentPlayer = 0;
+            ChangePlayer();
+            
             Button oldBtn = new Button() { Width = 0, Height = 0, Location = new Point(0, 0) };
             for (int i = 0; i < Const.ChessRow; i++)
             {
@@ -88,6 +106,11 @@ namespace GameCaro
             }
             Mark(btn);
             ChangePlayer();
+            if (playerMarked != null)
+            {
+                playerMarked(this, new EventArgs());
+            }
+
             if (isEndGame(btn))
             {
                 EndGame();
@@ -261,9 +284,12 @@ namespace GameCaro
         }
 
 
-        private void EndGame()
+        public void EndGame()
         {
-            MessageBox.Show("Game đã kết thúc");
+            if (endedGame != null)
+            {
+                endedGame(this, new EventArgs());
+            }
         }
         #endregion
     }
